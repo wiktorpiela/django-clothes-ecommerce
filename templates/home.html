@@ -27,7 +27,7 @@
 	{% for product in products %}
 		<div class="col-md-3">
 			<div class="card card-product-grid">
-				<a href="#" class="img-wrap"> <img src="{{product.image.url}}"> </a>
+				<a href="{% url 'store:product_details' product.category.slug product.slug %}" class="img-wrap"> <img src="{{product.image.url}}"> </a>
 				<figcaption class="info-wrap">
 					<a href="#" class="title">{{product.product_name}}</a>
 					<div class="price mt-1">${{product.price}}</div>
@@ -40,8 +40,6 @@
 </div>
 </section>
 <!-- ========================= SECTION  END// ========================= -->
-
-
 
 </body>
 </html>
