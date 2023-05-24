@@ -56,18 +56,25 @@ def add_cart(request, productID):
         
     return redirect("carts:cart")
 
-def remove_cart(request, productID):
+def remove_cart(request, productID, actionLocation):
     cart = Cart.objects.get(cart_id = _cart_id(request))
     product = get_object_or_404(Product, id=productID)
     cart_item = CartItem.objects.get(product=product, cart=cart)
 
-    if cart_item.quantity>1:
-        cart_item.quantity -= 1
-        cart_item.save()
+    if actionLocation=="decrement":
+
+        if cart_item.quantity>1:
+            cart_item.quantity -= 1
+            cart_item.save()
+        else:
+            cart_item.delete()
+
     else:
         cart_item.delete()
-    
+
     return redirect("carts:cart")
+
+
 
     
 
