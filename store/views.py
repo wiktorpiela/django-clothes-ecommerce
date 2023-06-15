@@ -4,6 +4,8 @@ from category.models import Category
 from carts.models import CartItem
 from carts.views import _cart_id
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.http import HttpResponse
+from django.db.models import Q
 
 def home(request):
     products = Product.objects.filter(is_available=True)
@@ -15,9 +17,9 @@ def store(request, categorySlug=None):
 
     if categorySlug != None:
         categories = get_object_or_404(Category, slug=categorySlug)
-        products = Product.objects.filter(category=categories, is_available=True)
+        products = Product.objects.filter(category=categories, is_available=True).order_by("id")
     else:
-        products = Product.objects.filter(is_available=True)
+        products = Product.objects.filter(is_available=True).order_by("id")
         
     prodCount = products.count()
     paginator = Paginator(products, 6)
@@ -27,7 +29,6 @@ def store(request, categorySlug=None):
     context = {
         "products":paged_products,
         "prodCount":prodCount
-
     }
 
     return render(request, "store/store.html", context)
@@ -46,3 +47,28 @@ def product_details(request, categorySlug, productSlug):
         }
     
     return render(request, "store/product_details.html", context)
+
+def search(request):
+    keywords = request.POST.get("keyword").split(" ")
+    
+    for keyword in keywords:
+        
+        products = Product.objects.filter(
+            Q(product_name__icontains=keyword) |
+            Q(description__icontains=keyword) |
+            Q(slug__icontains=keyword)
+            )
+        try:
+            questions = questions | products
+        except UnboundLocalError:
+            questions = products
+
+    productsCount = questions.count()
+    questions = list(set(questions.order_by("-created_date")))
+         
+    context = {
+        "products":questions,
+        "prodCount":productsCount
+    }
+
+    return render(request, "store/store.html", context)
