@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from store.models import Product
-from .models import Cart, CartItem
+from store.models import Product, Variation
+from .models import Cart, CartItem 
 from django.http import HttpResponse
 
 def _cart_id(request):
@@ -32,13 +32,20 @@ def cart(request, total=0, quantity=0, cart_items=None):
     return render(request, "store/cart.html", context)
 
 def add_cart(request, productID):
-    color = request.GET["color"]
-    size = request.GET["size"]
-
-    return HttpResponse(f"{color} {size}")
-    exit()
-
     product = Product.objects.get(pk=productID)
+    product_variation = []
+    if request.method == "POST":
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+
+            try:
+                variation = Variation.objects.get(product = product, 
+                                                  variation_category__iexact = key, 
+                                                  variation_value__iexact=value)
+                product_variation.append(variation)
+            except:
+                pass
 
     try:
         cart = Cart.objects.get(cart_id=_cart_id(request)) #get cart using the cart_id in the session
@@ -51,6 +58,12 @@ def add_cart(request, productID):
 
     try:
         cart_item = CartItem.objects.get(product=product, cart=cart)
+
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for item in product_variation:
+                cart_item.variations.add(item)
+
         cart_item.quantity += 1
         cart_item.save()
     except CartItem.DoesNotExist:
@@ -59,6 +72,12 @@ def add_cart(request, productID):
             quantity = 1,
             cart = cart
         )
+        
+        if len(product_variation) > 0:
+            cart_item.variations.clear()
+            for item in product_variation:
+                cart_item.variations.add(item)
+
         cart_item.save()
         
     return redirect("carts:cart")

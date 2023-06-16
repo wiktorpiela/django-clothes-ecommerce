@@ -8,7 +8,6 @@
     
     <!-- ============================ COMPONENT 1 ================================= -->
     
-    
     {% if not cart_items %}
         <h2 class="text-center">Your shopping cart is empty!</h2>
         <br>
@@ -40,7 +39,16 @@
                     <div class="aside"><img src="{{cart_item.product.image.url}}" class="img-sm"></div>
                     <figcaption class="info">
                         <a href="{% url 'store:product_details' cart_item.product.category.slug cart_item.product.slug %}" class="title text-dark">{{cart_item.product.product_name}}</a>
-                        <p class="text-muted small">Color: 25 Mpx <br> Size: Canon</p>
+                        <p class="text-muted small">
+                            
+                            {% if cart_item.variations.all %}
+                                {% for item in cart_item.variations.all  %}
+                                    {{item.variation_category|capfirst}} : {{item.variation_value|capfirst}} 
+                                    <br>
+                                {% endfor %}  
+                            {% endif %}
+                                
+                        </p>
                     </figcaption>
                 </figure>
             </td>

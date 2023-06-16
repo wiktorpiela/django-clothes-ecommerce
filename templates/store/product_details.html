@@ -20,7 +20,7 @@
             </aside>
             <main class="col-md-6 border-left">
 
-    <form action="{% url 'carts:add_cart' single_product.id %}" method="get">
+    <form action="{% url 'carts:add_cart' single_product.id %}" method="post">
       {% csrf_token %}
     <article class="content-body">
     
@@ -38,20 +38,22 @@
         <div class="row">
             <div class="item-option-select">
                 <h6>Choose Color</h6>
-                <select name="color" class="form-control">
-                  <option value="red">Red</option>
-                  <option value="yellow">Yellow</option>
-                  <option value="green">Green</option>
+                <select name="color" class="form-control" required>\
+                  <option value="" disabled selected>Select</option>
+                  {% for item in single_product.variation_set.colors %}
+                    <option value="{{item.variation_value|lower}}">{{item.variation_value|capfirst}}</option>
+                  {% endfor %}
                 </select>
             </div>
         </div> <!-- row.// -->
         <div class="row">
             <div class="item-option-select">
                 <h6>Select Size</h6>
-                <select name="size" class="form-control">
-                  <option value="small">Small</option>
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
+                <select name="size" class="form-control" required>
+                  <option value="" disabled selected>Select</option>
+                  {% for item in single_product.variation_set.sizes %}
+                    <option value="{{item.variation_value|lower}}">{{item.variation_value|capfirst}}</option>
+                  {% endfor %}
                 </select>
             </div>
         </div> <!-- row.// -->
@@ -59,11 +61,11 @@
         
         {% if single_product.stock <= 0 %}
             <h5 class="text-danger">Out of stock</h5>
-
         {% else %}
 
           {% if in_cart %}
-            <a href="#" class="btn  btn-success"> <span class="text">Item added</span> <i class="fas fa-check"></i></a>
+            <button type="submit" class="btn  btn-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i></button> 
+            <!-- <a href="#" class="btn  btn-success"> <span class="text">Item added</span> <i class="fas fa-check"></i></a> -->
             <a href="{% url 'carts:cart' %}" class="btn  btn-outline-primary"> <span class="text">View cart</span> <i class="fas fa-eye"></i></a>
           {% else %}
             <button type="submit" class="btn  btn-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i></button> 
