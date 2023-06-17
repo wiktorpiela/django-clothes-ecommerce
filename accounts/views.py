@@ -10,7 +10,7 @@ def register(request):
             last_name = form.cleaned_data["last_name"]
             email = form.cleaned_data["email"]
             phone_number = form.cleaned_data["phone_number"]
-            password = form.cleaned_data["password"],
+            password = form.cleaned_data["password"]
             username = email.split("@")[0]
 
             user = Account.objects.create_user(
