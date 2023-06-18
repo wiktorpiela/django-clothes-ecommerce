@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
 <section class="section-content padding-y">
@@ -52,7 +51,7 @@
                 </form>
             </article><!-- card-body.// -->
         </div> <!-- card .// -->
-        <p class="text-center mt-4">Have an account? <a href="">Log In</a></p>
+        <p class="text-center mt-4">Have an account? <a href="{% url 'accounts:user_login' %}">Log In</a></p>
         <br><br>
 
 </section>
