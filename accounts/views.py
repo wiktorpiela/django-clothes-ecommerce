@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from .models import Account
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 def register(request):
     if request.method == "POST":
@@ -49,17 +50,27 @@ def user_login(request):
             return redirect("accounts:user_login")
         
         else:
-            user = authenticate(email=email, password=password)
+            userIsActive = Account.objects.filter(email=email, is_active=True).exists()
 
-            if user is not None:
-                login(request, user)
-                messages.success(request, "Logged in successfully.")
-                return redirect("store:home")
-            else:
-                messages.error(request, "Invalid credentials. Try again!")
+            if not userIsActive:
+                messages.error(request, "This user is inactive. Activate your account, then try again.")
                 return redirect("accounts:user_login")
+            
+            else:
+                user = authenticate(username=email, password=password)
+
+                if user is not None:
+                    login(request, user)
+                    messages.success(request, "Logged in successfully.")
+                    return redirect("store:home")
+                else:
+                    messages.error(request, "Invalid credentials. Try again!")
+                    return redirect("accounts:user_login")
 
     return render(request, "accounts/user_login.html")
 
+@login_required
 def user_logout(request):
-    return render(request, "accounts/user_logout.html")
+    logout(request)
+    messages.success(request, "You are logged out.")
+    return redirect("accounts:user_login")
