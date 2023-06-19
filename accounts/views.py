@@ -1,15 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegistrationForm
+from .forms import RegistrationForm, ResetPasswordForm
 from .models import Account
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import EmailMessage
+from .func import send_activate_or_reset_password_email
 from django.http import HttpResponse
 
 def register(request):
@@ -35,20 +32,11 @@ def register(request):
             user.save()
 
             #user activation
-            currentSite = get_current_site(request)
-            mail_subject = "Please activate your account"
-            message = render_to_string("accounts/account_verification_email.html", {
-                "user": user,
-                "domain": currentSite,
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": default_token_generator.make_token(user)
-            })
-
-            emailReceiver = email
-            send_email= EmailMessage(mail_subject, 
-                                     message, 
-                                     to=[emailReceiver])
-            send_email.send()
+            send_activate_or_reset_password_email(request, 
+                                                  "Please activate your account", 
+                                                  "accounts/account_verification_email.html",
+                                                  user,
+                                                  email)
     
             # messages.success(request, f"Account has been created. Check your mail {email} to activate this account.")
             return redirect("/accounts/user-login/?command=verification&email="+email)
@@ -125,20 +113,11 @@ def forgot_password(request):
             user = get_object_or_404(Account, email__exact=email)
 
             #reset_password email
-            currentSite = get_current_site(request)
-            mail_subject = "Reset your password"
-            message = render_to_string("accounts/reset_password_email.html", {
-                "user": user,
-                "domain": currentSite,
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                "token": default_token_generator.make_token(user)
-            })
-
-            emailReceiver = email
-            send_email= EmailMessage(mail_subject, 
-                                     message, 
-                                     to=[emailReceiver])
-            send_email.send()
+            send_activate_or_reset_password_email(request, 
+                                        "Reset your password", 
+                                        "accounts/reset_password_email.html",
+                                        user,
+                                        email)
 
             messages.success(request, "Password reset email has been sent to your mailbox.")
             return redirect("accounts:user_login")
@@ -164,24 +143,29 @@ def resetpassword_validate(request, uidb64, token):
         messages.success(request, "This link has been expired. Try again.")
         return redirect("accounts:forgot_password")
 
-def reset_password(request):
+def reset_password(request):  
     if request.method == "POST":
+        form = ResetPasswordForm(request.POST)
         password = request.POST.get("password")
-        confirm_password = request.POST.get("confirm_password")
 
-        if password == confirm_password:
+        if form.is_valid():
             uid = request.session.get("uid")
             user = Account.objects.get(pk = uid)
             user.set_password(password)
             user.save()
             messages.success(request, "Password reset successfull.")
             return redirect("accounts:user_login")
-        else:
-            messages.error(request, "Password do not match.")
-            return redirect("accounts:reset_password")
-        
+
     else:
-        return render(request, "accounts/reset_password.html")
+        form = ResetPasswordForm()
+
+    context = {
+        "form":form
+    }
+
+    return render(request, "accounts/reset_password.html", context)
+
+    
 
 
 
