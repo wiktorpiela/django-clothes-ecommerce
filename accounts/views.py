@@ -4,6 +4,13 @@ from .models import Account
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
 
 def register(request):
     if request.method == "POST":
@@ -26,13 +33,29 @@ def register(request):
 
             user.phone_number = phone_number
             user.save()
-            messages.success(request, "Account has been created.")
-            return redirect("accounts:register")
 
+            #user activation
+            currentSite = get_current_site(request)
+            mail_subject = "Please activate your account"
+            message = render_to_string("accounts/account_verification_email.html", {
+                "user": user,
+                "domain": currentSite,
+                "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+                "token": default_token_generator.make_token(user)
+            })
+
+            emailReceiver = email
+            send_email= EmailMessage(mail_subject, 
+                                     message, 
+                                     to=[emailReceiver])
+            send_email.send()
+    
+            # messages.success(request, f"Account has been created. Check your mail {email} to activate this account.")
+            return redirect("/accounts/user-login/?command=verification&email="+email)
+        
     else:
         form = RegistrationForm()
         
-
     context = {
         "form":form
     }
@@ -74,3 +97,20 @@ def user_logout(request):
     logout(request)
     messages.success(request, "You are logged out.")
     return redirect("accounts:user_login")
+
+def activate(request, uidb64, token): 
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Account._default_manager.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Account.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Your account was actived.")
+        return redirect("accounts:user_login")
+    else:
+        messages.error(request, "Invalid activation link.")
+        return redirect("accounts:register")
+
