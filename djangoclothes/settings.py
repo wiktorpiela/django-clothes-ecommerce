@@ -143,3 +143,4 @@ EMAIL_HOST_USER = os.environ.get('EMAIL')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PW')
 
 DEFAULT_FROM_EMAIL = 'DjangoClothes <rprogrammer97@gmail.com>'
+LOGIN_URL = 'accounts:user_login'

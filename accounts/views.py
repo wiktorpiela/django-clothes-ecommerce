@@ -8,6 +8,8 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
 from .func import send_activate_or_reset_password_email
 from django.http import HttpResponse
+from carts.models import Cart, CartItem
+from carts.views import _cart_id
 
 def register(request):
     if request.method == "POST":
@@ -71,6 +73,16 @@ def user_login(request):
                 user = authenticate(username=email, password=password)
 
                 if user is not None:
+                    try:
+                        cart = Cart.objects.get(cart_id= _cart_id(request))
+                        cartItemExists = CartItem.objects.filter(cart=cart).exists()
+                        if cartItemExists:
+                            cart_item = CartItem.objects.filter(cart=cart)
+                            for item in cart_item:
+                                item.user = user
+                                item.save()
+                    except:
+                        pass
                     login(request, user)
                     messages.success(request, "Logged in successfully.")
                     return redirect("accounts:dashboard")

@@ -11,8 +11,8 @@
     <div class="card">
         <div class="card-body">
             <h4 class="cart-title mb-4">Billing address</h4>
-            <form action="">
-
+            <form action="{% url 'carts:checkout' %}" method="post">
+                {% csrf_token %}
                 <div class="form-row">
                     <div class="col form-group">
                         <label for="">First name</label>
@@ -73,7 +73,7 @@
 
 
 
-            </form>
+            
         </div>
 
  
@@ -134,10 +134,12 @@
                     </tbody>
                     </table>
 
-                <a href="#" class="btn btn-primary btn-block"> Place order </a>
+                <button type="submit" class="btn btn-primary btn-block"> Place order </button>
                 <a href="{% url 'store:store' %}" class="btn btn-light btn-block">Continue Shopping</a>
+            </form>
             </div> <!-- card-body.// -->
             </div> <!-- card.// -->
+        
     
     </aside> <!-- col.// -->
     
