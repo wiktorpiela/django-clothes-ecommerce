@@ -10,6 +10,7 @@ from .func import send_activate_or_reset_password_email
 from django.http import HttpResponse
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
+import requests
 
 def register(request):
     if request.method == "POST":
@@ -114,7 +115,16 @@ def user_login(request):
 
                     login(request, user)
                     messages.success(request, "Logged in successfully.")
-                    return redirect("accounts:dashboard")
+                    url = request.META.get("HTTP_REFERER")
+                    try:
+                        query = requests.utils.urlparse(url).query
+                        #next=/cart/checkout/
+                        params = dict(x.split("=") for x in query.split("&"))
+                        if "next" in params:
+                            nextPage = params["next"]
+                            return redirect(nextPage)
+                    except:
+                        return redirect("accounts:dashboard")
                 else:
                     messages.error(request, "Invalid credentials. Try again!")
                     return redirect("accounts:user_login")
