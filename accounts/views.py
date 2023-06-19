@@ -78,11 +78,40 @@ def user_login(request):
                         cartItemExists = CartItem.objects.filter(cart=cart).exists()
                         if cartItemExists:
                             cart_item = CartItem.objects.filter(cart=cart)
+
+                            #getting product variation by cart id
+                            product_variation = []
                             for item in cart_item:
-                                item.user = user
-                                item.save()
+                                variation = item.variations.all()
+                                product_variation.append(list(variation))
+
+                            #getting cart items from user to access his product variation
+                            cart_item = CartItem.objects.filter(user=user)
+                            ex_var_list = []
+                            ids = []
+                            for item in cart_item:
+                                existing_variation = item.variations.all()
+                                ex_var_list.append(list(existing_variation))
+                                ids.append(item.id)
+
+                            for pr in product_variation:
+                                if pr in ex_var_list:
+                                    index = ex_var_list.index(pr)
+                                    item_id = ids[index]
+                                    item = CartItem.objects.get(id=item_id)
+                                    item.quantity +=1
+                                    item.user = user
+                                    item.save()
+                                
+                                else:
+                                    cart_item = CartItem.objects.filter(cart=cart)
+                                    for item in cart_item:
+                                        item.user = user
+                                        item.save()
+
                     except:
                         pass
+
                     login(request, user)
                     messages.success(request, "Logged in successfully.")
                     return redirect("accounts:dashboard")
