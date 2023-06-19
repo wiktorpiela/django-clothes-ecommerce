@@ -168,10 +168,14 @@ def add_cart(request, productID):
         return redirect("carts:cart")
 
 def remove_cart(request, productID, actionLocation, cartItemID):
-    cart = Cart.objects.get(cart_id = _cart_id(request))
+    
     product = get_object_or_404(Product, id=productID)
 
-    cart_item = CartItem.objects.get(product=product, cart=cart, pk = cartItemID)
+    if request.user.is_authenticated:
+        cart_item = CartItem.objects.get(product=product, user=request.user, pk = cartItemID)
+    else:
+        cart = Cart.objects.get(cart_id = _cart_id(request))
+        cart_item = CartItem.objects.get(product=product, cart=cart, pk = cartItemID)
 
     if actionLocation=="decrement":
 
