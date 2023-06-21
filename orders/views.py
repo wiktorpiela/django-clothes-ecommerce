@@ -49,12 +49,22 @@ def place_order(request, total=0, quantity=0):
             order_number = f"{current_date}_{data.id}"
             data.order_number = order_number
             data.save()
-            print(order_number)
-            return redirect("carts:checkout")
+
+            order = Order.objects.get(user=request.user, is_ordered = False, order_number = order_number)
+            context = {
+                "order":order,
+                "cart_items":cart_items,
+                "total":total,
+                "tax":tax,
+                "grand_total":grand_total,
+            }
+            return render(request, "orders/payments.html", context)
         else:
-            pass
             return HttpResponse("something wrong")  
     else:
         return redirect("carts:checkout")
+    
+def payments(request):
+    return render(request, "orders/payments.html")
 
         

@@ -5,4 +5,5 @@ app_name = "orders"
 
 urlpatterns = [
     path("place-order/", views.place_order, name="place_order"),
+    path("payments/", views.payments, name="payments"),
 ]
