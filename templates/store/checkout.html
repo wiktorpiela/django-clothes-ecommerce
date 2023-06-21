@@ -11,7 +11,7 @@
     <div class="card">
         <div class="card-body">
             <h4 class="cart-title mb-4">Billing address</h4>
-            <form action="{% url 'carts:checkout' %}" method="post">
+            <form action="{% url 'orders:place_order' %}" method="post">
                 {% csrf_token %}
                 <div class="form-row">
                     <div class="col form-group">
@@ -77,9 +77,9 @@
         </div>
 
  
-    </div> <!-- card.// -->
+    </div>
     
-        </aside> <!-- col.// -->
+        </aside> 
         <aside class="col-lg-6">
     
             <div class="card">
@@ -126,7 +126,7 @@
                                 <div class="price-wrap"> 
                                     <var class="price">{{cart_item.sub_total}}</var> 
                                     <small class="text-muted"> $ {{cart_item.product.price}} each </small> 
-                                </div> <!-- price-wrap .// -->
+                                </div>
                             </td>
                         </tr> 
                     {% endfor %}
@@ -137,20 +137,18 @@
                 <button type="submit" class="btn btn-primary btn-block"> Place order </button>
                 <a href="{% url 'store:store' %}" class="btn btn-light btn-block">Continue Shopping</a>
             </form>
-            </div> <!-- card-body.// -->
-            </div> <!-- card.// -->
+            </div> 
+            </div> 
         
     
-    </aside> <!-- col.// -->
+    </aside>
     
     
-    </div> <!-- row.// -->
+    </div>
 
-    <!-- ============================ COMPONENT 1 END .// ================================= -->
     
-    </div> <!-- container .//  -->
+    </div> 
     </section>
-    <!-- ========================= SECTION CONTENT END// ========================= -->
+
     
 {% endblock content %}
-    
