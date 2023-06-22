@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-from .func import send_activate_or_reset_password_email
+from .func import send_custom_email
 from django.http import HttpResponse
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
@@ -35,11 +35,11 @@ def register(request):
             user.save()
 
             #user activation
-            send_activate_or_reset_password_email(request, 
-                                                  "Please activate your account", 
-                                                  "accounts/account_verification_email.html",
-                                                  user,
-                                                  email)
+            send_custom_email(request, 
+                              "Please activate your account", 
+                              "accounts/account_verification_email.html",
+                              user,
+                              email)
     
             # messages.success(request, f"Account has been created. Check your mail {email} to activate this account.")
             return redirect("/accounts/user-login/?command=verification&email="+email)
@@ -164,11 +164,11 @@ def forgot_password(request):
             user = get_object_or_404(Account, email__exact=email)
 
             #reset_password email
-            send_activate_or_reset_password_email(request, 
-                                        "Reset your password", 
-                                        "accounts/reset_password_email.html",
-                                        user,
-                                        email)
+            send_custom_email(request, 
+                              "Reset your password", 
+                              "accounts/reset_password_email.html",
+                              user,
+                              email)
 
             messages.success(request, "Password reset email has been sent to your mailbox.")
             return redirect("accounts:user_login")

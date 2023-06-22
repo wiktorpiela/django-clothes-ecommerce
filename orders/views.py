@@ -6,6 +6,8 @@ from .models import Order, Payment, OrderProduct
 from datetime import datetime
 import json
 from store.models import Product
+from accounts.func import send_custom_email
+from django.http import JsonResponse
 
 def place_order(request, total=0, quantity=0):
     cart_items = CartItem.objects.filter(user=request.user)
@@ -110,9 +112,22 @@ def payments(request):
     CartItem.objects.filter(user=request.user).delete()
 
     #send confirmation mail to customer
+    send_custom_email(
+        request,
+        "Thank you for your order",
+        "orders/order_received_email.html",
+        request.user,
+        request.user.email,
+        order
+    )
 
     #send order number and transaction id back to  sendData methon by response
+    data = {
+        "order_number":order.order_number,
+        "transID":payment.payment_id
+        }
+    
+    return JsonResponse(data)
 
-    return render(request, "orders/payments.html")
-
-        
+def order_complete(request):
+    return render(request, "orders/order_complete.html")  

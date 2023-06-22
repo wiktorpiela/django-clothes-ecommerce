@@ -1,8 +1,11 @@
 {% autoescape off %}
 
-Hi, {{user.first_name}},
+Hi {{user.first_name}},
 
 Please click below link to activate your account.
 http://{{domain}}{% url 'accounts:activate' uidb64=uid token=token %}
+
+Best Regards,
+DjangoClothes Team
 
 {% endautoescape %}
