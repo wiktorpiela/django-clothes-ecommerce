@@ -81,6 +81,16 @@ def payments(request):
     order.payment = payment
     order.save()
 
+    #move the cart items to order product table
+
+    #reduce quantity of sold products in stock
+
+    #clear the cart
+
+    #send confirmation mail to customer
+
+    #send order number and transaction id back to  sendData methon by response
+
     return render(request, "orders/payments.html")
 
         
