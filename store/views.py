@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.db.models import Q
 from .forms import ReviewForm
 from django.contrib import messages
+from orders.models import OrderProduct
 
 def home(request):
     products = Product.objects.filter(is_available=True)
@@ -43,9 +44,15 @@ def product_details(request, categorySlug, productSlug):
     except Exception as e:
         raise e
     
+    try:
+        orderproduct = OrderProduct.objects.filter(user=request.user, product_id=single_product.id).exists()
+    except OrderProduct.DoesNotExist:
+        orderproduct = None
+    
     context = {
         "single_product":single_product,
         "in_cart":in_cart,
+        "orderproduct": orderproduct
         }
     
     return render(request, "store/product_details.html", context)
