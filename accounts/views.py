@@ -35,6 +35,11 @@ def register(request):
             user.phone_number = phone_number
             user.save()
 
+            #create userprofile
+            profile = UserProfile()
+            profile.user_id = user.id
+            profile.save()
+
             #user activation
             send_custom_email(request, 
                               "Please activate your account", 
