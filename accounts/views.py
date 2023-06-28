@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import RegistrationForm, ResetPasswordForm, UserForm, UserProfileForm
+from .forms import RegistrationForm, ResetPasswordForm, UserForm, UserProfileForm, ChangePasswordForm
 from .models import Account, UserProfile
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -228,6 +228,7 @@ def reset_password(request):
 
     return render(request, "accounts/reset_password.html", context)
 
+@login_required
 def my_orders(request):
     orders = Order.objects.filter(user=request.user, is_ordered=True).order_by("-created_at")
     context = {
@@ -235,6 +236,7 @@ def my_orders(request):
     }
     return render(request, "accounts/my_orders.html", context)
 
+@login_required
 def edit_profile(request):
     userprofile = UserProfile.objects.get(user=request.user)
     if request.method == "POST":
@@ -254,6 +256,27 @@ def edit_profile(request):
         "userprofile":userprofile
     }
     return render(request, "accounts/edit_profile.html", context)
+
+@login_required
+def change_password(request):
+    user = Account.objects.get(username__exact=request.user.username)
+    if request.method == "POST":
+        form = ChangePasswordForm(user=user, data=request.POST)
+        new_password = request.POST.get("new_password")
+    
+        if form.is_valid():
+            user.set_password(new_password)
+            user.save()
+            messages.success(request, "Password updated successfully.")
+            return redirect("accounts:change_password")
+    else:
+        form = ChangePasswordForm(user=user)
+
+    context = {
+        "form":form,
+    }
+
+    return render(request, "accounts/change_password.html", context)
 
     
 
