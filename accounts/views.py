@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
 import requests
-from orders.models import Order
+from orders.models import Order, OrderProduct
 
 def register(request):
     if request.method == "POST":
@@ -163,9 +163,10 @@ def activate(request, uidb64, token):
 def dashboard(request):
     orders = Order.objects.order_by("-created_at").filter(user_id = request.user.id, is_ordered=True)
     orders_count = orders.count()
+    userprofile = UserProfile.objects.get(user=request.user)
     context = {
         "orders_count": orders_count,
-
+        "userprofile":userprofile
     }
     return render(request, "accounts/dashboard.html", context)
 
@@ -277,6 +278,22 @@ def change_password(request):
     }
 
     return render(request, "accounts/change_password.html", context)
+
+@login_required
+def order_details(request, orderID):
+    order_details = OrderProduct.objects.filter(order__order_number=orderID)
+    order = Order.objects.get(order_number=orderID)
+    subtotal = 0
+    for i in order_details:
+        subtotal += i.product_price * i.quantity
+    context = {
+        "order_details":order_details,
+        "order":order,
+        "subtotal":subtotal
+    }
+    return render(request, "accounts/order_details.html", context)
+
+
 
     
 
