@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, ReviewRating
+from .models import Product, ReviewRating, ProductGallery
 from category.models import Category
 from carts.models import CartItem
 from carts.views import _cart_id
@@ -11,8 +11,15 @@ from django.contrib import messages
 from orders.models import OrderProduct
 
 def home(request):
-    products = Product.objects.filter(is_available=True)
-    return render(request, "home.html", {"products":products})
+    products = Product.objects.filter(is_available=True).order_by("created_date")
+    for product in products:
+        reviews = ReviewRating.objects.filter(product_id = product.id, status=True)
+
+    context = {
+        "products":products,
+        "reviews":reviews
+    }
+    return render(request, "home.html", context)
 
 def store(request, categorySlug=None):
     categories = None
@@ -54,12 +61,16 @@ def product_details(request, categorySlug, productSlug):
 
     #get product reviews
     reviews = ReviewRating.objects.filter(product_id = single_product.id, status=True)
+
+    #get product gallery
+    gallery = ProductGallery.objects.filter(product_id=single_product.id)
     
     context = {
         "single_product":single_product,
         "in_cart":in_cart,
         "orderproduct": orderproduct,
         "reviews": reviews,
+        "product_gallery":gallery
         }
     
     return render(request, "store/product_details.html", context)
