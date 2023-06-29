@@ -44,3 +44,25 @@ label:hover ~ input:checked ~label{
 .rating-star i{
     color: #ffb503;
 }
+
+ul.thumb{
+    margin: 0 auto;
+    padding: 0;
+    float: left;
+}
+
+ul.thumb li{
+    list-style: none;
+    margin: 1rem;
+}
+
+ul.thumb li img{
+    width: 8rem;
+    height: 8rem;
+    border: 0.1rem solid grey;
+    border-radius: 15%;
+}
+
+.footer-content{
+    margin-left: 15rem;
+}
