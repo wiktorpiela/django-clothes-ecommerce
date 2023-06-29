@@ -2,6 +2,7 @@ from django import forms
 from .models import Account, UserProfile
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import check_password
+import phonenumbers
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget = forms.PasswordInput(attrs={
@@ -39,6 +40,11 @@ class RegistrationForm(forms.ModelForm):
             )
         
         validate_password(password)
+
+        phone_number = self.cleaned_data.get("phone_number")
+        z = phonenumbers.parse(phone_number, "PL")
+        if not phonenumbers.is_valid_number(z):
+            raise forms.ValidationError(f"Wrong PL phone number format! Try again.")
 
 class ResetPasswordForm(forms.ModelForm):
     password = forms.CharField(widget = forms.PasswordInput(attrs={
