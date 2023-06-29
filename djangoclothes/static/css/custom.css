@@ -62,3 +62,7 @@ ul.thumb li img{
     border: 0.1rem solid grey;
     border-radius: 15%;
 }
+
+.footer-content{
+    margin-left: 15rem;
+}
