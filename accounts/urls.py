@@ -15,5 +15,6 @@ urlpatterns = [
     path("edit-profile/", views.edit_profile, name="edit_profile"),
     path("change-password/", views.change_password, name="change_password"),
     path("order-details/<str:orderID>/", views.order_details, name="order_details"),
+    path("remove-account/", views.remove_account, name="remove_account"),
     path("", views.dashboard, name="dashboard"),
 ]

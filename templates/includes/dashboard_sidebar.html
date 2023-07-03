@@ -8,5 +8,6 @@
     </ul>
     <br>
     <a class="btn btn-light btn-block" href="{% url 'accounts:user_logout' %}"> <i class="fa fa-power-off"></i> <span class="text">Log out</span> </a> 
+    <a class="btn btn-light btn-block" href="{% url 'accounts:remove_account' %}" onclick="return confirm('Are you sure you want to remove your account including all related content ?')"> <i class="fa fa-remove"></i> <span class="text">Remove account</span></a> 
     <!--   SIDEBAR .//END   -->
 </aside>

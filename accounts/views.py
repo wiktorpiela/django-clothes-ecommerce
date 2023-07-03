@@ -293,6 +293,13 @@ def order_details(request, orderID):
     }
     return render(request, "accounts/order_details.html", context)
 
+@login_required
+def remove_account(request):
+    userKey = request.user.id
+    logout(request)
+    Account.objects.filter(pk=userKey).delete()
+    return redirect("store:home")
+
 
 
     
