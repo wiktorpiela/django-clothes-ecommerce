@@ -3,6 +3,7 @@ from store.models import Product, Variation
 from .models import Cart, CartItem 
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from accounts.models import UserProfile
 
 def _cart_id(request):
     cart=request.session.session_key
@@ -211,12 +212,15 @@ def checkout(request, total=0, quantity=0, cart_items=None):
     except Cart.DoesNotExist:
         pass
 
+    userprofile = UserProfile.objects.get(user=request.user)
+
     context = {
         "total":total,
         "quantity":quantity,
         "cart_items":cart_items,
         "tax":tax,
-        "grand_total":grand_total
+        "grand_total":grand_total,
+        "userprofile":userprofile
         }
 
     return render(request, "store/checkout.html", context)
