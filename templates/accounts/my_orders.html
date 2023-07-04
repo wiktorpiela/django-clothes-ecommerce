@@ -22,7 +22,7 @@
                               <tr>
                                 <th scope="col">Order #</th>
                                 <th scope="col">Billing name</th>
-                                <th scope="col">Phone number</th>
+                                <th scope="col">Invoice</th>
                                 <th scope="col">Order total</th>
                                 <th scope="col">Order date</th>
                               </tr>
@@ -32,7 +32,7 @@
                                 <tr>
                                     <th scope="row"><a href="{% url 'accounts:order_details' order.order_number %}">{{order.order_number}}</a></th>
                                     <td>{{order.full_name}}</td>
-                                    <td>{{order.phone}}</td>
+                                    <td><a href="{% url 'accounts:generate_invoice' order.order_number %}" class="btn btn-primary">Get PDF</a></td>
                                     <td>{{order.order_total}}</td>
                                     <td>{{order.created_at}}</td>
                                 </tr>   

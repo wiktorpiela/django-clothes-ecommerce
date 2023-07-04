@@ -6,11 +6,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.contrib.auth.tokens import default_token_generator
-from .func import send_custom_email
+from .func import send_custom_email, render_to_pdf
 from django.http import HttpResponse
 from carts.models import Cart, CartItem
 from carts.views import _cart_id
 import requests
+from django.views.generic.base import View
 from orders.models import Order, OrderProduct
 
 def register(request):
@@ -299,6 +300,40 @@ def remove_account(request):
     logout(request)
     Account.objects.filter(pk=userKey).delete()
     return redirect("store:home")
+
+class GenerateInvoice(View):
+    def get(self, request, orderID, *args, **kwargs):
+        try:
+            order_details = OrderProduct.objects.filter(order__order_number=orderID)
+            order = Order.objects.get(order_number=orderID)
+        except:
+            return HttpResponse("not found")
+        
+        subtotal = 0
+        for i in order_details:
+            subtotal += i.product_price * i.quantity
+        
+        context = {
+            "order":order,
+            "order_details":order_details,
+            "subtotal":subtotal
+        }
+
+        pdf = render_to_pdf("accounts/invoice.html", context)
+        #return HttpResponse(pdf, content_type="application/pdf")
+
+        if pdf:
+            response = HttpResponse(pdf, content_type = "application/pdf")
+            filename = f"Invoice_{order.order_number}.pdf"
+            content = f"inline; filename={filename}"
+            content = f"attachment; filename={filename}"
+            response["Content-Disposition"] = content
+            return response
+
+        
+
+
+
 
 
 

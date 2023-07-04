@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <title>{{order.full_name}} invoice</title>
+<style>
+  .clearfix:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+a {
+  text-decoration: underline;
+}
+
+body {
+  position: relative;
+  margin: 0 auto; 
+  color: #001028;
+  background: #FFFFFF; 
+  font-family: Arial, sans-serif; 
+  font-size: 14px; 
+  font-family: Arial;
+}
+
+header {
+  padding: 10px 0;
+  margin-bottom: 30px;
+}
+
+#logo {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#logo img {
+  width: 90px;
+}
+
+h1 {
+  
+  color: #5D6975;
+  font-size: 2.4em;
+  line-height: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  margin: 0 0 20px 0;
+}
+
+#project {
+  float: left;
+}
+
+#project span {
+  color: #5D6975;
+  text-align: right;
+  width: 52px;
+  margin-right: 10px;
+  display: inline-block;
+  font-size: 14px;
+}
+
+#company {
+  float: right;
+  text-align: right;
+}
+
+#project div,
+#company div {
+  white-space: nowrap;        
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  margin-bottom: 20px;
+}
+
+table th,
+table td {
+  text-align: center;
+}
+
+table th {
+  color: #5D6975;
+  border-bottom: 1px solid #C1CED9;
+  white-space: nowrap;        
+  font-weight: normal;
+}
+
+table .service,
+table .desc {
+  text-align: left;
+}
+
+table td {
+ padding-top:5px;
+ padding-bottom:5px;
+  
+}
+
+table tr {
+  border-bottom: 1px solid #C1CED9;
+}
+
+table td.service,
+table td.desc {
+  vertical-align: top;
+}
+
+table td.unit,
+table td.qty,
+table td.total {
+  font-size: 1.2em;
+}
+
+table td.grand {
+  border-top: 1px solid #5D6975;;
+}
+
+#notices .notice {
+  color: #5D6975;
+  font-size: 1.2em;
+}
+
+footer {
+  color: #5D6975;
+  width: 100%;
+  height: 30px;
+  position: absolute;
+  bottom: 0;
+  border-top: 1px solid #C1CED9;
+  padding: 8px 0;
+  text-align: center;
+}
+
+
+  </style>
+</head>
+
+<body>
+  <header class="clearfix">
+    <div id="logo" style="display:flex; justify-content:center; align-items:center;">
+      <img src="{% static '/images/DC.jpg' %}" class="brand-logo" width=60 height=60> <!--not working-->
+      <h1 class="brand-name">DjangoClothes</h1>
+    </div>
+    <h1>INVOICE</h1>
+    <div id="company" class="clearfix">
+      <div>DjangoClothes</div>
+      <div><a href="mailto:rprogrammer97@gmail.com">rprogrammer97@gmail.com</a></div>
+      <div><a href="#">custom domain</a></div>
+    </div>
+    <div id="project">
+      <div><span>CLIENT:</span> {{order.full_name}}</div>
+      <div><span>EMAIL:</span> <a href="mailto:{{user_email}}">{{order.user.email}}</a></div>
+      <div><span>DATE:</span> {{order.created_at}}</div>
+      <div><span>INVOICE ID:</span> {{order.order_number}}</div>
+      <div><span>TRANSACTION ID:</span> {{order.payment.payment_id}}</div>
+    </div>
+    <br>
+    <br>
+  </header>
+    <div class="table-container" style="overflow-x:auto">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="per70 text-center">Description</th>
+                    <th class="per5 text-center">Qty</th>
+                    <th class="per25 text-center">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                {% for item in order_details %}
+                    <tr>
+                        <td>{{item.product.product_name}}
+                            <p class="text-muted small">
+                                {% if item.variations.all %}
+                                    {% for i in item.variations.all  %}
+                                        {{i.variation_category|capfirst}} : {{i.variation_value|capfirst}} <br>
+                                    {% endfor %}  
+                                {% endif %}     
+                            </p>
+                        </td>
+                        <td class="text-center">{{item.quantity}}</td>
+                        <td class="text-center">${{item.product_price}} USD</td>
+                    </tr>
+                    
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2" class="text-right">Sub Total:</th>
+                    <th class="text-center">${{subtotal}} USD</th>
+                </tr>
+                <tr>
+                    <th colspan="2" class="text-right">Tax:</th>
+                    <th class="text-center">${{order.tax}} USD</th>
+                </tr>
+                
+                <tr>
+                    <th colspan="2" class="text-right">Grand Total:</th>
+                    <th class="text-center">${{order.order_total}} USD</th>
+                </tr>
+            </tfoot>
+        </table>
+
+
+    </div>
+    <p style="text-align:right; font-size:12px;">*All values are in USD<p>
+</body>
+
+</html>
