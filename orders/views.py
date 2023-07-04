@@ -8,6 +8,9 @@ import json
 from store.models import Product
 from accounts.func import send_custom_email
 from django.http import JsonResponse
+from django.template.loader import get_template
+from io import BytesIO
+from xhtml2pdf import pisa
 
 def place_order(request, total=0, quantity=0):
     cart_items = CartItem.objects.filter(user=request.user)
@@ -111,6 +114,26 @@ def payments(request):
     #clear the cart
     CartItem.objects.filter(user=request.user).delete()
 
+    #generate pdf invoice for mail attachment
+    template = get_template("accounts/invoice.html")
+    order_details = OrderProduct.objects.filter(order__order_number = order.order_number)
+
+    subtotal = 0
+    for i in order_details:
+        subtotal += i.product_price * i.quantity
+
+    pdf_data = {
+        "subtotal":subtotal,
+        "order":order,
+        "order_details":order_details
+    }
+
+    html = template.render(pdf_data)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    pdf = result.getvalue()
+    filename = f"Invoice_{order.order_number}.pdf"
+
     #send confirmation mail to customer
     send_custom_email(
         request,
@@ -118,7 +141,10 @@ def payments(request):
         "orders/order_received_email.html",
         request.user,
         request.user.email,
-        order
+        order,
+        filename,
+        pdf,
+        "application/pdf"
     )
 
     #send order number and transaction id back to  sendData methon by response

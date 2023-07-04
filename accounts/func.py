@@ -13,7 +13,7 @@ from xhtml2pdf import pisa
 import os
 from django.conf import settings
 
-def send_custom_email(request:object, email_subject:str, template_path:str, user:object, email:str, order:object=None):
+def send_custom_email(request:object, email_subject:str, template_path:str, user:object, email:str, order:object=None, attachment_name=None, attachment_file=None, attachment_application=None):
     currentSite = get_current_site(request)
     mail_subject = email_subject
     message = render_to_string(template_path, {
@@ -28,6 +28,10 @@ def send_custom_email(request:object, email_subject:str, template_path:str, user
     send_email= EmailMessage(mail_subject, 
                              message, 
                              to=[emailReceiver])
+    
+    if None not in (attachment_name, attachment_file, attachment_file):
+        send_email.attach(attachment_name, attachment_file, attachment_application)
+
     send_email.send()
 
 def fetch_resources(uri, rel):
