@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "orders",
     "cloudinary_storage",
     "cloudinary",
+    "admin_honeypot",
 ]
 
 MIDDLEWARE = [
