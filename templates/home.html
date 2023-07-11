@@ -23,6 +23,8 @@
 	<h3 class="section-title">Popular products</h3>
 </header>
 
+
+{% if products %}
 <div class="row">
 	{% for product in products %}
 		<div class="col-md-3">
@@ -46,6 +48,12 @@
 	{% endfor %}
 </div> 
 
+{% else %}
+
+<h1>no products yet</h1>
+
+{% endif %}
+	
 </div>
 </section>
 <!-- ========================= SECTION  END// ========================= -->
